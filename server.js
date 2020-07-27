@@ -25,22 +25,42 @@ app.use(express.static('public'));
 //importing "SOCKET.IO" to the server
 var socket = require('socket.io');
 var io = socket(server);
-io.sockets.on('connection', newConnection);
 
-function newConnection(socket) {
-  //check terminal or CMD for the id of every client in the server
-  console.log("new connection = " + socket.id);
+//TEMPORARY list of current players
+var online = [];
 
-  //TODO: logging down information from client to the server
-  socket.on('mouse', mouseMsg);
+io.sockets.on('connection', function (socket) {
 
-  function mouseMsg(data) {
-    //TODO: server sending out the information from client and broadcasting it
-    socket.broadcast.emit('mouse', data);
-    //another possibility - sending information back to original server too
-    //io.sockets.emit('mouse', data);
+    //check terminal or CMD for the id of every client in the server
+    console.log("new connection = " + socket.id);
 
-    console.log(data);
-  }
+    //TEMPORARYily immediately push new connections to online list
+    online.push(socket.id);
 
-}
+    if(online.length >= 2) {
+        socket.emit('start', { users: online.length });
+    }
+
+    socket.on('NewPlayer', function(data1) {
+
+
+
+    });
+
+    socket.on('DelPlayer', function(data) {
+
+
+
+    });
+
+    socket.on('disconnect', function () {
+
+        const index = online.indexOf(socket.id);
+        online.splice(index, 1);
+
+        socket.emit('disconnected');
+        console.log(`${socket.id} left`)
+
+    });
+
+});
