@@ -29,6 +29,7 @@ var io = socket(server);
 //TEMPORARY list of current players
 var online = [];
 
+//VERY useful cheatsheet: https://socket.io/docs/emit-cheatsheet/
 io.sockets.on('connection', function (socket) {
 
     //check terminal or CMD for the id of every client in the server
@@ -38,19 +39,23 @@ io.sockets.on('connection', function (socket) {
     online.push(socket.id);
 
     if(online.length >= 2) {
-        socket.emit('start', { users: online.length });
+        socket.broadcast.emit('start', { users: online.length });
     }
 
-    socket.on('NewPlayer', function(data1) {
-
-
-
+    socket.on('JoinRoom', function(data) {
+        //TODO send room dynamically from url client-side
+        socket.join(data.gameId);
     });
 
     socket.on('DelPlayer', function(data) {
 
 
 
+    });
+
+    socket.on('UpdatePosition', function(data) {
+
+        socket.to(data.gameId).emit('UpdatePosition', data);
     });
 
     socket.on('disconnect', function () {
