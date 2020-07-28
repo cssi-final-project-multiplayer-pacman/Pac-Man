@@ -20,7 +20,7 @@ var app = express();
 var server = app.listen(3000);  //Port: 3000 ==> URL: localhost:3000
 
 //connecting client information (from sketch.js) to the server and reflecting onto web page
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 
 //importing "SOCKET.IO" to the server
 var socket = require('socket.io');
