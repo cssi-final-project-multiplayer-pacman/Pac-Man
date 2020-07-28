@@ -87,12 +87,22 @@ class Maze {
         }
     }
 
-    getTile(x, y) {
-        return this.maze[ Math.floor(y / this.squareSize) ][ Math.floor(x / this.squareSize) ];
+    //Returns index of tile at x, y
+    //returns object with keys row, col
+    getIndexByCoords(x, y) {
+        return {row: Math.floor(y / this.squareSize),
+                col: Math.floor(x / this.squareSize)};
     }
 
-    getTileByIndex(x, y) {
-        return this.maze[y][x];
+    //Returns the tile type of the tile at coordinate x, y
+    getTile(x, y) {
+        let indices = this.getIndexByCoords(x, y);
+        return this.maze[ indices.row ][ indices.col ];
+    }
+
+    //Returns the tile indexed in maze by row and col
+    getTileByIndex(col, row) {
+        return this.maze[row][col];
     }
 
     eatFood(x, y) {
