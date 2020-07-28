@@ -1,3 +1,5 @@
+const tempGameId = '#temp-game-id';
+
 const squareSize = 20;
 const playerSize = squareSize * 4/5;
 
@@ -13,7 +15,7 @@ function setup() {
         sessionId = socket.id;
         pac.setId(sessionId);
 
-        socket.emit('JoinRoom', {gameId: 'temp-game-id'});
+        socket.emit('JoinRoom', {gameId: tempGameId});
     });
 
     //Create canvas
@@ -49,6 +51,11 @@ function setup() {
         }
     });
 
+    socket.on('DeleteCharacter', data => {
+        //Remove the disconnected character from the otherUsers dictionary
+        delete otherUsers[data.id];
+    });
+
     pac = new Character(createVector(30, 30), createVector(1, 0), maze);
 }
 
@@ -57,7 +64,7 @@ function draw() {
     maze.drawFood();
 
     pac.move((id, pos, dir) => {
-        socket.emit('UpdatePosition', {gameId: 'temp-game-id', id: id, x: pos.x, y: pos.y, dirX: dir.x, dirY: dir.y});
+        socket.emit('UpdatePosition', {gameId: tempGameId, id: id, x: pos.x, y: pos.y, dirX: dir.x, dirY: dir.y});
     });
 
     pac.draw();

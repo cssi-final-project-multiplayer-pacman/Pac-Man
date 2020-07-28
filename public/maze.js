@@ -27,13 +27,14 @@ class Maze {
     static EMPTY_COLOR = '#000000';
     static FOOD_COLOR = '#2ecc71';
 
+    //Build the 2d maze array from the ascii maze representation
+    /*Also build the walls, food, empty lists for more efficient rendering
+      (i.e. only render the walls once,
+            render food when one is eaten,
+            continuously render empty squares)
+    */
     constructor(squareSize) {
-        //Build the 2d maze array from the ascii maze representation
-        /*Also build the walls, food, empty lists for more efficient rendering
-          (i.e. only render the walls once,
-                render food when one is eaten,
-                continuously render empty squares)
-        */
+        
         this.squareSize = squareSize;
         this.maze = [];
         this.walls = [];

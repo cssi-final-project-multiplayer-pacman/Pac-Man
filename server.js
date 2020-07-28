@@ -47,15 +47,19 @@ io.sockets.on('connection', function (socket) {
         socket.join(data.gameId);
     });
 
-    socket.on('DelPlayer', function(data) {
-
-
-
-    });
-
     socket.on('UpdatePosition', function(data) {
 
         socket.to(data.gameId).emit('UpdatePosition', data);
+    });
+
+    socket.on('disconnecting', () => {
+        const rooms = Object.keys(socket.rooms);
+        for (let room of rooms) {
+            if (room.startsWith('#')) {
+                socket.to(room).emit('DeleteCharacter', {id: socket.id});
+            }
+        }
+        // the rooms array contains at least the socket ID
     });
 
     socket.on('disconnect', function () {
