@@ -1,10 +1,65 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-wrapper {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    justify-content: space-evenly;
+    grid-column-gap: 10px;
+    width: 70%;
+    height: 70%;
+}
+
 #game-div {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    grid-column: 2;
     display: grid;
     justify-content: center;
-    align-content: center;
+    align-items: center;
+}
+
+#player-list {
+    grid-column: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.player {
+    margin: 5px;
+    width: 100%;
+    height: 50px;
+    background-color: #bdc3c7;
+    border-radius: 5px;
+}
+
+.details-wrapper > * {
+    margin: 0;
+}
+
+.details-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.role-wrapper {
+    height: 100%;
+    float: right;
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+}
+
+.role-icon {
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 3px black;
 }

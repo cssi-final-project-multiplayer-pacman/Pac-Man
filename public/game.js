@@ -1,4 +1,4 @@
-var gameId;
+var gameId, name;
 
 const squareSize = 20;
 const playerSize = squareSize * 4/5;
@@ -8,8 +8,12 @@ let width, height;
 let socket, maze, sessionId, pac, otherUsers, running, countdownTimer;
 
 function setup() {
-    let url = getURL();
-    gameId = `#${ url.substring( url.lastIndexOf('/') + 1 ) }`;
+    gameId = `#${ getURLPath()[1].split('?')[0] }`;
+    name = getURLParams().name;
+
+    if (!name) {
+        name = generateName();
+    }
 
     //Start the socket connection
     socket = io.connect('http://localhost:3000');
@@ -148,7 +152,7 @@ function connect() {
     sessionId = socket.id;
     pac.setId(sessionId);
 
-    socket.emit('JoinRoom', {gameId: gameId});
+    socket.emit('JoinRoom', {gameId: gameId, name: name});
     //Update Position when joining room to update everyone's otherUsers list
     emitPosition();
 }
