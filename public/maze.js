@@ -11,8 +11,7 @@ let mazeAscii = `###############
 #   # ### #   #
 ##     #     ##
 ####       ####
-###############
-`;
+###############`;
 
 class Maze {
     //Static states of the maze array
@@ -27,6 +26,8 @@ class Maze {
     static EMPTY_COLOR = '#000000';
     static FOOD_COLOR = '#2ecc71';
 
+    static ROLES = ['#f1c40f', '#3498db', '#e74c3c', '#9b59b6'];
+
     //Build the 2d maze array from the ascii maze representation
     /*Also build the walls, food, empty lists for more efficient rendering
       (i.e. only render the walls once,
@@ -34,7 +35,7 @@ class Maze {
             continuously render empty squares)
     */
     constructor(squareSize) {
-        
+
         this.squareSize = squareSize;
         this.maze = [];
         this.walls = [];
@@ -70,6 +71,14 @@ class Maze {
         }
     }
 
+    getCols() {
+        return this.maze[0].length;
+    }
+
+    getRows() {
+        return this.maze.length;
+    }
+
     drawWalls() {
         for (let w of this.walls) {
             w.draw();
@@ -86,6 +95,12 @@ class Maze {
         for (let e of this.empty) {
             e.draw();
         }
+    }
+
+    drawAll() {
+        this.drawWalls();
+        this.drawFood();
+        this.drawEmpty();
     }
 
     //Returns index of tile at x, y
