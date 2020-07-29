@@ -3,9 +3,12 @@ const tempGameId = '#temp-game-id';
 const squareSize = 20;
 const playerSize = squareSize * 4/5;
 
-let socket, maze, sessionId, pac, otherUsers;
+let socket, maze, sessionId, pac, otherUsers, running;
 
 function setup() {
+    //By default, the game is not running
+    running = false;
+
     //Start the socket connection
     socket = io.connect('http://localhost:3000');
 
@@ -56,10 +59,25 @@ function setup() {
         delete otherUsers[data.id];
     });
 
+    socket.on('StartGame', data => {
+        console.log(data);
+    });
+
     pac = new Character(createVector(30, 30), createVector(1, 0), maze);
 }
 
 function draw() {
+    if (running) {
+        gameTick();
+    } else {
+        textSize(24);
+        textAlign(CENTER, CENTER);
+        text('Waiting For Players...', 200, 200);
+    }
+}
+
+//Run a single game frame
+function gameTick() {
     maze.drawEmpty();
     maze.drawFood();
 
@@ -73,7 +91,7 @@ function draw() {
         let char = otherUsers[key];
 
         //Passing an empty callback, because this character shouldn't update
-        //the position of another character
+        //the position of another user's character
         char.move(() => {});
 
         char.draw();
