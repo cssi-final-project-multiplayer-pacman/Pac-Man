@@ -1,5 +1,5 @@
 const debug = false;
-const playersPerGame = 2;
+const playersPerGame = 4;
 
 //using "EXPRESS" to connect the server to the web page
 var express = require('express');
