@@ -1,5 +1,5 @@
-const debug = true;
-const minPlayersPerGame = 2;
+const debug = false;
+const playersPerGame = 2;
 
 //using "EXPRESS" to connect the server to the web page
 var express = require('express');
@@ -27,33 +27,36 @@ var io = socket(server);
 io.sockets.on('connection', function (socket) {
 
     socket.on('JoinRoom', function(data) {
-
-        socket.join(data.gameId);
-
         let room = rooms[data.gameId];
 
-        if (room == undefined) {
-            rooms[data.gameId] = new Room(data.gameId);
-            room = rooms[data.gameId];
+        if (room == undefined || room.numUsers() < playersPerGame) {
+            socket.join(data.gameId);
+
+
+            if (room == undefined) {
+                rooms[data.gameId] = new Room(data.gameId);
+                room = rooms[data.gameId];
+            }
+
+            room.addUser({
+                id: socket.id,
+                name: data.name,
+                score: 0
+            });
+            debugLog(`Room: ${room.id} (${room.numUsers()} Active Users)`);
+            io.sockets.in(data.gameId).emit('UpdateSpectators', {users: room.users});
+
+            if (room.numUsers() == playersPerGame) {
+                //Give the users a chance to update their otherUsers arrays
+                setTimeout(() => {
+                    let assignments = room.getCharacterAssignments();
+                    io.sockets.in(data.gameId).emit('StartGame', {assignments: assignments});
+                    io.sockets.in(data.gameId).emit('UpdateSpectators', {users: room.users, assignments: assignments});
+                }, 1000);
+            }
+        } else {
+            socket.emit('GameFull');
         }
-
-        room.addUser({
-            id: socket.id,
-            name: data.name,
-            score: 0
-        });
-        debugLog(`Room: ${room.id} (${room.numUsers()} Active Users)`);
-        io.sockets.in(data.gameId).emit('UpdateSpectators', {users: room.users});
-
-        if (room.numUsers() >= minPlayersPerGame) {
-            //Give the users a chance to update their otherUsers arrays
-            setTimeout(() => {
-                let assignments = room.getCharacterAssignments();
-                io.sockets.in(data.gameId).emit('StartGame', {assignments: assignments});
-                io.sockets.in(data.gameId).emit('UpdateSpectators', {users: room.users, assignments: assignments});
-            }, 1000);
-        }
-
     });
 
     socket.on('GetAvailibleRooms', function() {
@@ -63,7 +66,7 @@ io.sockets.on('connection', function (socket) {
         for (let key in rooms) {
             let room = rooms[key];
 
-            if (room.numUsers() < minPlayersPerGame) {
+            if (room.numUsers() < playersPerGame) {
                 availibleRooms.push(room);
             }
         }
@@ -122,7 +125,7 @@ io.sockets.on('connection', function (socket) {
                     if (room.numUsers() == 0) {
                         delete rooms[roomName];
                         debugLog(`Deleting Room ${roomName} because there are no users`);
-                    } else if (room.numUsers() < minPlayersPerGame) {
+                    } else if (room.numUsers() < playersPerGame) {
                         io.sockets.in(roomName).emit('ResetGame');
                     }
                 }
@@ -139,6 +142,20 @@ io.sockets.on('connection', function (socket) {
     });
 
 });
+
+//Returns arr shifted n elements over to the right
+function shift(arr, n) {
+    let dict = {}
+    for (let i = 0; i < arr.length; i++) {
+        dict[(i+n) % arr.length] = arr[i];
+    }
+
+    let shifted = [];
+    for (let i = 0; i < arr.length; i++) {
+        shifted.push(dict[i]);
+    }
+    return shifted;
+}
 
 //Print if in debug mode
 function debugLog(str) {
@@ -174,7 +191,7 @@ class Room {
             roles.push(i);
         }
 
-        roles = roles.concat(roles.splice(0, this.pacIndex % this.numUsers()));
+        roles = shift(roles, this.pacIndex % this.numUsers());
 
         let i = 0;
         for (let key in this.users) {
