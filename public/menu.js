@@ -13,7 +13,7 @@ function joinGame() {
     if (gameId.length == ID_LENGTH) {
         window.location.href = `/game/${gameId}?name=${name}`;
     } else if (gameId.length == 0) {
-        let socket = io.connect('http://localhost:3000');
+        let socket = io.connect('/');
         var socketConnection = io.connect();
         socket.emit('GetAvailibleRooms');
         socket.on('AvailibleRooms', (data) => {
