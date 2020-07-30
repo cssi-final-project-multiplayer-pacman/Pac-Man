@@ -6,7 +6,7 @@ function attachListener() {
     playerList = {};
 
     //Start the socket connection
-    socket = io.connect('http://localhost:3000');
+    socket = io.connect('');
 
     //Capture client id to avoid rendering itself
     var socketConnection = io.connect();
@@ -87,6 +87,7 @@ class User {
         role.classList.add("role-icon");
         // role.classList.add("role-icon" + this.role);
         role.style.backgroundColor = Maze.ROLES[this.role];
+        wrapper.style.borderColor = Maze.ROLES[this.role];
 
         roleWrapper.appendChild(role);
         detailsWrapper.appendChild(title);
