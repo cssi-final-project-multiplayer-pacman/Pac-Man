@@ -30,6 +30,12 @@ body {
     display: block;
     width: 100%;
     margin-bottom: 10px;
+    background-color: Transparent;
+    color: white;
+    outline: 0;
+    border-width: 0 0 2px;
+    border-color: white;
+    font-size: 18px;
 }
 
 #main-div > button {

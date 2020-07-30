@@ -8,6 +8,8 @@ function joinGame() {
         name = generateName();
     }
 
+    name = name.replace(' ', '');
+
     if (gameId.length == ID_LENGTH) {
         window.location.href = `/game/${gameId}?name=${name}`;
     } else if (gameId.length == 0) {
@@ -39,6 +41,7 @@ function createGame() {
         alert(`Game Id must be ${ID_LENGTH} characters long`);
     }
     let name = document.getElementById('name').value;
+    name = name.replace(' ', '');
 
     window.location.href = `/game/${gameId}?name=${name}`;
 }
