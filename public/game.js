@@ -11,10 +11,6 @@ function setup() {
     gameId = `#${ getURLPath()[1].split('?')[0] }`;
     name = getURLParams().name;
 
-    if (!name) {
-        name = generateName();
-    }
-
     //Start the socket connection
     socket = io.connect('http://localhost:3000');
 

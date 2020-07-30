@@ -1,24 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Pac-Man Main Menu</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <title>Pac-Man Main Menu</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="/style.css">
+        <!-- import the webpage's stylesheet -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
 
-    <!-- import the p5.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+        <!-- import the p5.js library -->
+        <!-- <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script> -->
 
-    <!--include p5.collide2D addon library-->
-    <script src="https://unpkg.com/p5.collide2d"></script>
+        <!--include p5.collide2D addon library-->
+        <!-- <script src="https://unpkg.com/p5.collide2d"></script> -->
 
-    <!-- import the webpage's javascript file -->
-    <script src="/mainmenu.js" defer></script>
+        <!-- import the webpage's javascript file -->
+        <!-- <script src="/mainmenu.js" defer></script> -->
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+        <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+        <script type="text/javascript" src="../name.js"></script>
+        <script src="/menu.js" defer></script>
+    </head>
+    <body>
 
-  </head>
-  <body>
-  </body>
+        <div id='main-div'>
+
+            <h1>Welcome to <br/> Pac-Man</h1>
+
+            <label for="name">Username:</label>
+            <input type="input" name="name" id="name" value="">
+
+            <label for="game">Game Id: (optional)</label>
+            <input type="input" name="game" id="game" value="">
+
+            <button onclick="joinGame()">Join Game</button>
+            <button onclick="createGame()">Create Custom Game</button>
+
+        </div>
+
+    </body>
 </html>

@@ -56,6 +56,20 @@ io.sockets.on('connection', function (socket) {
 
     });
 
+    socket.on('GetAvailibleRooms', function() {
+
+        let availibleRooms = [];
+
+        for (let key in rooms) {
+            let room = rooms[key];
+
+            if (room.numUsers() < minPlayersPerGame) {
+                availibleRooms.push(room);
+            }
+        }
+
+        socket.emit('AvailibleRooms', {availible: availibleRooms});
+    });
 
     socket.on('RoundOver', function(data) {
 
