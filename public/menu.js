@@ -1,14 +1,20 @@
 const ID_LENGTH = 5;
 
-function joinGame() {
-    let gameId = document.getElementById('game').value;
+function getCleanValues() {
+    let gameId = document.getElementById('game').value.replace('#', '');
     let name = document.getElementById('name').value;
-
     if (name.length < 1) {
         name = generateName();
     }
-
     name = name.replace(' ', '');
+
+    return {gameId: gameId, name: name};
+}
+
+function joinGame() {
+    let data = getCleanValues();
+    let gameId = data.gameId;
+    let name = data.name;
 
     if (gameId.length == ID_LENGTH) {
         window.location.href = `/game/${gameId}?name=${name}`;
@@ -34,14 +40,15 @@ function joinGame() {
 }
 
 function createGame() {
-    let gameId = document.getElementById('game').value;
+    let data = getCleanValues();
+    let gameId = data.gameId;
+    let name = data.name;
+
     if (gameId.length == 0) {
         gameId = makeid(ID_LENGTH);
     } else if (gameId.length != ID_LENGTH) {
         alert(`Game Id must be ${ID_LENGTH} characters long`);
     }
-    let name = document.getElementById('name').value;
-    name = name.replace(' ', '');
 
     window.location.href = `/game/${gameId}?name=${name}`;
 }

@@ -1,8 +1,11 @@
 var gameId, name;
 
-const squareSize = 20;
-const playerSize = squareSize * 4/5;
-const fps = 60;
+var squareSize = 20;
+var playerSize = squareSize * 4/5;
+const fps = 30;
+const ticksPerSquare = 10;
+
+var speed = squareSize/ticksPerSquare;
 
 let width, height;
 let socket, maze, sessionId, pac, otherUsers, running, countdownTimer;
@@ -23,15 +26,15 @@ function setup() {
     socket.on('StartGame', data => { startGame(data) });
     socket.on('ResetGame', () => { resetGame() });
     socket.on('SyncPosition', () => { emitPosition(); });
+    socket.on('GameFull', () => {
+        alert('Sorry the game is full :(');
+        window.location.href = '/';
+    });
 
     //Create a new maze
-    maze = new Maze(squareSize);
-
-    width = maze.getCols() * squareSize;
-    height = maze.getRows() * squareSize;
-
+    let dimensions = createMaze(0.5, 0.7);
     //Create canvas
-    const cv = createCanvas(width, height);
+    const cv = createCanvas(dimensions.width, dimensions.height);
 
     //Add id and make child of game-div to apply styling in style.css
     cv.id('main-game');
@@ -41,6 +44,8 @@ function setup() {
     //(prevents one user from moving quicker due to more draw commands)
     frameRate(fps);
     cv.background(0);
+
+    maze.drawAll();
 
     //Reset Game
     resetGame();
@@ -67,8 +72,28 @@ function draw() {
     }
 }
 
+function createMaze(widthScale, heightScale) {
+    let tempMaze = new Maze(1);
+    let size = Math.min((windowWidth*widthScale) / tempMaze.getCols(), (windowHeight*heightScale) / tempMaze.getRows());
+    //Round squareSize to the nearest 5 to avoid any weird decimal errors while moving
+    size = Math.ceil(Math.floor(size) / 5) * 5;
+
+    maze = new Maze(size);
+
+    width = maze.getCols() * size;
+    height = maze.getRows() * size;
+
+    squareSize = size;
+    speed = squareSize/ticksPerSquare;
+    playerSize = size * 4/5;
+
+    return {width: width, height: height};
+}
+
 function emitPosition() {
-    socket.emit('UpdatePosition', {gameId: gameId, id: pac.id, x: pac.pos.x, y: pac.pos.y, dirX: pac.dir.x, dirY: pac.dir.y});
+    let currentTile = maze.getIndexByCoords(pac.pos.x, pac.pos.y);
+    let unitDir = pac.dir.copy().setMag(1);
+    socket.emit('UpdatePosition', {gameId: gameId, id: pac.id, col: currentTile.col, row: currentTile.row, dirX: unitDir.x, dirY: unitDir.y});
 }
 
 function alertText(txt) {
@@ -102,7 +127,6 @@ function resetGame() {
 function startGame(data) {
 
     countdownTimer = fps * 5;
-    // countdownTimer = 10;
     running = true;
 
     updateRoles(data.assignments);
@@ -131,12 +155,13 @@ function updatePosition(data) {
         //Lookup character that sent the update using the id it sent
         let char = otherUsers[data.id];
         //Updating or add the character that sent the update
+        let pos = createVector(data.col * squareSize + squareSize/2, data.row * squareSize + squareSize/2);
+        let unitDir = createVector(data.dirX, data.dirY);
+        let dir = unitDir.copy().setMag(speed);
         if (char != undefined) {
-            char.pos = createVector(data.x, data.y);
-            char.dir = createVector(data.dirX, data.dirY);
+            char.pos = pos;
+            char.dir = dir;
         } else {
-            let pos = createVector(data.x, data.y);
-            let dir = createVector(data.dirX, data.dirY);
             otherUsers[data.id] = new Character(pos, dir, maze);
             otherUsers[data.id].setId(data.id);
         }
@@ -214,7 +239,7 @@ class Character {
     constructor(pos, dir, maze) {
         this.id = -1; //Default id, will not get added to otherUsers if id == -1
         this.pos = pos;
-        this.dir = dir;
+        this.dir = dir.setMag(speed);
         this.queuedDir = null;
         this.maze = maze;
         this.role = 0;
@@ -228,7 +253,7 @@ class Character {
     //Set the desired direction for this Character
     //The direction may or may not change based on factors calculated in 'move'
     setDesiredDir(desiredDir) {
-        this.queuedDir = desiredDir;
+        this.queuedDir = desiredDir.setMag(speed);
     }
 
     //Move the character if is appropriate to do so (center of tile, not going into a wall, etc)
@@ -243,9 +268,11 @@ class Character {
             if (this.nextTileInDirIsWall(this.pos, this.queuedDir)) {
                 this.queuedDir = this.dir;
             } else {
-                this.dir = this.queuedDir.copy();
+                this.dir = this.queuedDir.copy().setMag(speed);
                 //Sync immediately when the direction changes
-                updatePositionCallback(this.id, this.pos, this.dir);
+                let currentTile = this.maze.getIndexByCoords(this.pos.x, this.pos.y);
+                let unitDir = this.dir.copy().setMag(1);
+                updatePositionCallback(this.id, currentTile, unitDir);
             }
         }
 
@@ -255,16 +282,18 @@ class Character {
 
         //If the character is centered, check the next tile in the direction of dir
         //If that tile is a wall, keep the character where it is, else move it by dir
+        // console.log(`(${this.pos.x}, ${this.pos.y}): ${this.isCenteredInSquare(this.pos.x, this.pos.y}`);
         if (this.isCenteredInSquare(this.pos.x, this.pos.y)) {
+            let unitDir = this.dir.copy().setMag(1);
             let currentTile = this.maze.getIndexByCoords(newPos.x, newPos.y);
-            if (this.maze.getTileByIndex(currentTile.col + this.dir.x, currentTile.row + this.dir.y) == Maze.WALL) {
+            if (this.nextTileInDirIsWall(newPos, unitDir)) {
                 newPos = this.pos;
             }
 
             //Only sync if the character is actually moving
             //(i.e. not staying still against a wall)
             if (newPos != this.pos) {
-                updatePositionCallback(this.id, newPos, this.dir);
+                updatePositionCallback(this.id, currentTile, unitDir);
             }
         }
         this.pos = newPos;
@@ -314,7 +343,9 @@ class Character {
 
     //Return whether the next tile in direction dir is a Wall
     nextTileInDirIsWall(pos, dir) {
+        let unitDir = dir.setMag(1);
         let currentTile = this.maze.getIndexByCoords(pos.x, pos.y);
-        return this.maze.getTileByIndex(currentTile.col + dir.x, currentTile.row + dir.y) == Maze.WALL;
+        // console.log(`${this.id}: ${this.maze.getTileByIndex(currentTile.col + unitDir.x, currentTile.row + unitDir.y)}`);
+        return this.maze.getTileByIndex(currentTile.col + unitDir.x, currentTile.row + unitDir.y) == Maze.WALL;
     }
 }

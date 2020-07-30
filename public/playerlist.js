@@ -58,6 +58,10 @@ function updateHTMLList() {
         let user = playerList[player];
         htmlPlayerList.appendChild(user.toHTML());
     }
+
+    //Update the game-id h1
+    let h1 = document.getElementById('game-id');
+    h1.innerText = `Share the Game Id (${gameId}) to play with friends!`;
 }
 
 class User {
