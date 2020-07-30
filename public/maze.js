@@ -21,12 +21,12 @@ class Maze {
     static CANDY = 3;
 
     //Static colors
-    static WALL_COLOR = '#34495e';
+    static WALL_COLOR = '#1919A6';
     static PAC_COLOR = '#f1c40f';
     static EMPTY_COLOR = '#000000';
-    static FOOD_COLOR = '#2ecc71';
+    static FOOD_COLOR = '#DEA185';
 
-    static ROLES = ['#f1c40f', '#3498db', '#e74c3c', '#9b59b6'];
+    static ROLES = ['#FFFF00', '#FF0000', '#FFB8FF', '#00FFFF', '#FFB852'];
 
     //Build the 2d maze array from the ascii maze representation
     /*Also build the walls, food, empty lists for more efficient rendering
@@ -167,7 +167,7 @@ class Food {
         rect(this.col * this.size, this.row * this.size, this.size, this.size);
 
         fill(Maze.FOOD_COLOR);
-        ellipse(this.col * this.size + this.size/2, this.row * this.size + this.size/2, this.size/3);
+        ellipse(this.col * this.size + this.size/2, this.row * this.size + this.size/2, this.size/5);
     }
 }
 
