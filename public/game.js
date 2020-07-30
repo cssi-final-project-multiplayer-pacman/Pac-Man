@@ -12,7 +12,7 @@ function setup() {
     name = getURLParams().name;
 
     //Start the socket connection
-    socket = io.connect('/');
+    socket = io.connect('');
 
     //Capture client id to avoid rendering itself
     var socketConnection = io.connect();
