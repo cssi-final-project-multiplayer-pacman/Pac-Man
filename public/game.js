@@ -2,7 +2,7 @@ var gameId, name;
 
 const squareSize = 20;
 const playerSize = squareSize * 4/5;
-const fps = 30;
+const fps = 60;
 
 let width, height;
 let socket, maze, sessionId, pac, otherUsers, running, countdownTimer;
